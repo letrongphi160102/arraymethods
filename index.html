@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Array Methods — map, filter, reduce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --bg2: #13151c;
+    --bg3: #1a1d28;
+    --bg4: #21253a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf2;
+    --text2: #8b90a8;
+    --text3: #555b75;
+    --accent: #7c6aff;
+    --accent2: #9d8fff;
+    --teal: #2dd4bf;
+    --coral: #f97066;
+    --amber: #fbbf24;
+    --green: #34d399;
+    --blue: #60a5fa;
+    --pink: #f472b6;
+    --map-c: #7c6aff;
+    --filter-c: #2dd4bf;
+    --reduce-c: #f97066;
+    --code-bg: #0b0d14;
+    --code-string: #a3e635;
+    --code-keyword: #c084fc;
+    --code-fn: #60a5fa;
+    --code-comment: #4b5563;
+    --code-number: #fb923c;
+    --code-operator: #94a3b8;
+    --sidebar-w: 260px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 28px 22px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo h1 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .sidebar-logo .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  .sidebar-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .badge-map { background: rgba(124,106,255,0.15); color: var(--map-c); }
+  .badge-filter { background: rgba(45,212,191,0.15); color: var(--filter-c); }
+  .badge-reduce { background: rgba(249,112,102,0.15); color: var(--reduce-c); }
+
+  .sidebar-nav { padding: 16px 0; flex: 1; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 22px;
+    font-size: 13px;
+    color: var(--text2);
+    text-decoration: none;
+    transition: all 0.18s;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .nav-item.active { color: var(--accent2); border-left-color: var(--accent); background: rgba(124,106,255,0.08); }
+  .nav-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    padding: 16px 22px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* ── Main ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 64px 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,106,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .hero h1 span.m { color: var(--map-c); }
+  .hero h1 span.f { color: var(--filter-c); }
+  .hero h1 span.r { color: var(--reduce-c); }
+  .hero-desc {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 600px;
+    line-height: 1.7;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 36px;
+  }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600; color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--text3); }
+
+  /* ── Content area ── */
+  .content { padding: 0 64px 80px; max-width: 900px; }
+
+  /* ── Section ── */
+  .section {
+    padding-top: 64px;
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  .section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 28px 0 12px;
+  }
+
+  .accent-map { color: var(--map-c); }
+  .accent-filter { color: var(--filter-c); }
+  .accent-reduce { color: var(--reduce-c); }
+
+  p { color: var(--text2); margin-bottom: 16px; line-height: 1.8; }
+  p strong { color: var(--text); font-weight: 600; }
+  p code, li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg3);
+    color: var(--accent2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Info cards ── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border2); }
+  .card-icon { font-size: 20px; margin-bottom: 10px; }
+  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .card-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* ── Comparison table ── */
+  .cmp-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  .cmp-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border2);
+  }
+  .cmp-table td {
+    padding: 12px 16px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table td:first-child { color: var(--text3); font-size: 12px; font-weight: 500; }
+  .th-map { color: var(--map-c); }
+  .th-filter { color: var(--filter-c); }
+  .th-reduce { color: var(--reduce-c); }
+
+  /* ── Code block ── */
+  .code-block {
+    position: relative;
+    margin: 20px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .copy-btn:hover { background: var(--bg); color: var(--text); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+  .copy-btn svg { width: 12px; height: 12px; }
+
+  pre {
+    background: var(--code-bg);
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* Syntax highlight */
+  .k { color: var(--code-keyword); }
+  .s { color: var(--code-string); }
+  .fn { color: var(--code-fn); }
+  .c { color: var(--code-comment); font-style: italic; }
+  .n { color: var(--code-number); }
+  .o { color: var(--code-operator); }
+  .cm { color: var(--amber); }  /* method */
+  .var { color: var(--coral); }
+  .ok { color: var(--green); font-weight: 500; }
+  .bad { color: var(--coral); font-weight: 500; }
+  .hl { background: rgba(124,106,255,0.12); display: block; margin: 0 -20px; padding: 0 20px; }
+
+  /* ── Warning / tip boxes ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px solid;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-content { color: var(--text2); }
+  .callout-content strong { color: var(--text); }
+  .callout.warning { background: rgba(251,191,36,0.06); border-color: rgba(251,191,36,0.2); }
+  .callout.tip { background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.2); }
+  .callout.danger { background: rgba(249,112,102,0.06); border-color: rgba(249,112,102,0.25); }
+  .callout.info { background: rgba(96,165,250,0.06); border-color: rgba(96,165,250,0.2); }
+
+  /* ── Method signature ── */
+  .sig-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .sig-box.sig-map { border-left-color: var(--map-c); }
+  .sig-box.sig-filter { border-left-color: var(--filter-c); }
+  .sig-box.sig-reduce { border-left-color: var(--reduce-c); }
+  .sig-label { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+
+  /* ── Quick reference section ── */
+  .quick-ref {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .qr-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .qr-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+  .qr-top {
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .qr-map .qr-top { background: rgba(124,106,255,0.1); color: var(--map-c); }
+  .qr-filter .qr-top { background: rgba(45,212,191,0.1); color: var(--filter-c); }
+  .qr-reduce .qr-top { background: rgba(249,112,102,0.1); color: var(--reduce-c); }
+  .qr-body { padding: 14px 16px; }
+  .qr-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .qr-row:last-child { border-bottom: none; }
+  .qr-key { color: var(--text3); }
+  .qr-val { color: var(--text); font-weight: 500; }
+
+  /* ── Tag pills ── */
+  .tag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; margin: 2px; }
+  .tag-pure { background: rgba(52,211,153,0.12); color: var(--green); }
+  .tag-hof { background: rgba(124,106,255,0.12); color: var(--map-c); }
+  .tag-immutable { background: rgba(96,165,250,0.12); color: var(--blue); }
+  .tag-fp { background: rgba(244,114,182,0.12); color: var(--pink); }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── Pattern card ── */
+  .pattern-list { list-style: none; margin: 12px 0; }
+  .pattern-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .pattern-list li:last-child { border-bottom: none; }
+  .pattern-list li::before {
+    content: '→';
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .pattern-list li strong { color: var(--text); }
+
+  /* ── Decision table ── */
+  .decision-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 20px 0; }
+  .decision-table th {
+    background: var(--bg3);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .decision-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text2); }
+  .decision-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+  .decision-table td em { font-style: normal; color: var(--text); font-weight: 500; }
+
+  /* ── Scroll to top ── */
+  #scrolltop {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 40px; height: 40px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s, background 0.2s;
+    color: var(--text2);
+    font-size: 16px;
+    z-index: 200;
+  }
+  #scrolltop.visible { opacity: 1; }
+  #scrolltop:hover { background: var(--bg4); color: var(--text); }
+
+  /* ── Mobile ── */
+  #menu-toggle { display: none; }
+  @media (max-width: 820px) {
+    #sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    .hero { padding: 48px 24px 40px; }
+    .content { padding: 0 24px 60px; }
+    .quick-ref { grid-template-columns: 1fr; }
+    .hero-stats { gap: 20px; }
+    #menu-toggle {
+      display: flex;
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 300;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 18px;
+      align-items: center;
+    }
+    .hero { padding-top: 72px; }
+  }
+</style>
+</head>
+<body>
+
+<button id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>JS Array Methods</h1>
+    <div class="subtitle">// map · filter · reduce</div>
+    <div class="sidebar-badges">
+      <span class="badge badge-map">.map()</span>
+      <span class="badge badge-filter">.filter()</span>
+      <span class="badge badge-reduce">.reduce()</span>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <a class="nav-item active" href="#s1"><span class="nav-num">01</span>Nền tảng lý thuyết</a>
+    <a class="nav-item" href="#s2"><span class="nav-num">02</span>Array.map()</a>
+    <a class="nav-item" href="#s3"><span class="nav-num">03</span>Array.filter()</a>
+    <a class="nav-item" href="#s4"><span class="nav-num">04</span>Array.reduce()</a>
+    <a class="nav-item" href="#s5"><span class="nav-num">05</span>So sánh trực quan</a>
+    <a class="nav-item" href="#s6"><span class="nav-num">06</span>Method Chaining</a>
+    <a class="nav-item" href="#s7"><span class="nav-num">07</span>Pattern nâng cao</a>
+    <a class="nav-item" href="#s8"><span class="nav-num">08</span>Kiến thức liên quan</a>
+    <a class="nav-item" href="#s9"><span class="nav-num">09</span>Tóm tắt &amp; quyết định</a>
+  </div>
+  <div class="sidebar-footer">
+    <div>ES6+ · Functional Programming</div>
+    <div style="margin-top:4px; color: var(--text3);">9 sections · 40+ code examples</div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main id="main">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">// JavaScript · Array Methods · Chuyên sâu</div>
+    <h1>
+      <span class="m">.map()</span><br>
+      <span class="f">.filter()</span><br>
+      <span class="r">.reduce()</span>
+    </h1>
+    <p class="hero-desc">
+      Ba phương thức cốt lõi của lập trình hàm trong JavaScript. Nắm vững chúng thay đổi hoàn toàn cách bạn tư duy về xử lý dữ liệu — từ React state management đến Node.js API pipelines.
+    </p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">9</span><span class="stat-label">Sections</span></div>
+      <div class="stat"><span class="stat-num">40+</span><span class="stat-label">Code examples</span></div>
+      <div class="stat"><span class="stat-num">3</span><span class="stat-label">Core methods</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- S1: Nền tảng -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Nền tảng lý thuyết — Phải hiểu điều này trước</h2>
+      </div>
+
+      <p>Trước khi đi vào từng method, cần nắm ba khái niệm nền tảng của <strong>Functional Programming</strong>. Hiểu đúng ba khái niệm này giúp bạn sử dụng các array methods một cách có chủ đích, tránh bug khó chịu.</p>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 20px;">
+        <span class="tag tag-hof">Higher-Order Function</span>
+        <span class="tag tag-pure">Pure Function</span>
+        <span class="tag tag-immutable">Immutability</span>
+        <span class="tag tag-fp">Functional Programming</span>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title" style="color: var(--map-c)">Higher-Order Function</div>
+          <div class="card-desc">Hàm nhận một hàm khác làm tham số, hoặc trả về một hàm. <code>map</code>, <code>filter</code>, <code>reduce</code> đều là HOF — chúng nhận <strong>callback function</strong> và áp dụng lên từng phần tử.</div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: var(--filter-c)">Pure Function</div>
+          <div class="card-desc">Hàm không có side effect — cùng input luôn cho cùng output, không thay đổi biến bên ngoài. Callback trong <code>map/filter/reduce</code> nên là pure function.</div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color: var(--reduce-c)">Immutability</div>
+          <div class="card-desc"><code>map</code> và <code>filter</code> không thay đổi mảng gốc mà trả về mảng mới. Nguyên tắc này giúp code dễ debug và tránh bug do mutation.</div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content"><strong>Tại sao quan trọng?</strong> Trong React, việc mutation state trực tiếp là bug kinh điển. Hiểu immutability giúp bạn dùng <code>map</code> để update, <code>filter</code> để delete items trong state array một cách an toàn.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S2: map -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2><span class="accent-map">Array.prototype.map()</span> — Biến đổi từng phần tử</h2>
+      </div>
+
+      <p><strong>Định nghĩa chính xác:</strong> <code>map</code> tạo ra một mảng mới bằng cách áp dụng hàm callback lên <strong>từng phần tử</strong> của mảng gốc. Kết quả là mảng mới có <strong>cùng độ dài</strong> với mảng ban đầu.</p>
+
+      <div class="sig-box sig-map">
+        <div class="sig-label">Signature đầy đủ</div>
+        array.<span style="color:var(--map-c)">map</span>(callback(<span style="color:var(--amber)">currentValue</span>, <span style="color:var(--blue)">index</span>, <span style="color:var(--text2)">array</span>), thisArg)
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Ví dụ cơ bản</span>
+<span class="k">const</span> <span class="var">prices</span> = [<span class="n">100</span>, <span class="n">200</span>, <span class="n">350</span>, <span class="n">80</span>];
+<span class="k">const</span> <span class="var">withTax</span> = <span class="var">prices</span>.<span class="cm">map</span>(<span class="var">price</span> => <span class="var">price</span> * <span class="n">1.1</span>);
+<span class="c">// [110, 220, 385, 88] — mảng gốc prices không đổi</span>
+
+<span class="c">// Dùng đủ 3 tham số của callback</span>
+<span class="k">const</span> <span class="var">labeled</span> = <span class="var">prices</span>.<span class="cm">map</span>((<span class="var">price</span>, <span class="var">index</span>, <span class="var">arr</span>) => ({
+  id: <span class="var">index</span> + <span class="n">1</span>,
+  price,
+  isMax: <span class="var">price</span> === Math.<span class="fn">max</span>(...<span class="var">arr</span>)
+}));
+
+<span class="c">// Thực tế: transform API response</span>
+<span class="k">const</span> <span class="var">users</span> = <span class="var">apiData</span>.<span class="cm">map</span>(<span class="var">user</span> => ({
+  id: <span class="var">user</span>.user_id,          <span class="c">// đổi tên key</span>
+  name: <span class="s">`${user.first_name} ${user.last_name}`</span>, <span class="c">// kết hợp fields</span>
+  isAdmin: <span class="var">user</span>.role === <span class="s">'admin'</span> <span class="c">// tính toán derived value</span>
+}));</code></pre>
+      </div>
+
+      <h3>Hiểu sâu — Cách map() hoạt động bên trong</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — polyfill</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Polyfill đơn giản giúp bạn hiểu cơ chế</span>
+Array.prototype.<span class="fn">myMap</span> = <span class="k">function</span>(<span class="var">callback</span>, <span class="var">thisArg</span>) {
+  <span class="k">const</span> <span class="var">result</span> = <span class="k">new</span> <span class="fn">Array</span>(<span class="k">this</span>.length); <span class="c">// tạo mảng cùng size</span>
+  <span class="k">for</span> (<span class="k">let</span> <span class="var">i</span> = <span class="n">0</span>; <span class="var">i</span> < <span class="k">this</span>.length; <span class="var">i</span>++) {
+    <span class="k">if</span> (<span class="var">i</span> <span class="k">in</span> <span class="k">this</span>) { <span class="c">// bỏ qua "holes" trong sparse array</span>
+      <span class="var">result</span>[<span class="var">i</span>] = <span class="var">callback</span>.<span class="fn">call</span>(<span class="var">thisArg</span>, <span class="k">this</span>[<span class="var">i</span>], <span class="var">i</span>, <span class="k">this</span>);
+    }
+  }
+  <span class="k">return</span> <span class="var">result</span>;
+};</code></pre>
+      </div>
+
+      <h3>Sparse Array — Chi tiết quan trọng</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// map giữ nguyên "holes" (phần tử trống)</span>
+<span class="k">const</span> <span class="var">sparse</span> = [<span class="n">1</span>, , <span class="n">3</span>]; <span class="c">// sparse array, index 1 bị bỏ qua</span>
+<span class="var">sparse</span>.<span class="cm">map</span>(<span class="var">x</span> => <span class="var">x</span> * <span class="n">2</span>); <span class="c">// [2, empty, 6] — không phải [2, NaN, 6]</span>
+
+<span class="c">// Tạo array range với Array.from + map</span>
+Array.<span class="fn">from</span>({ length: <span class="n">10</span> }, (<span class="var">_</span>, <span class="var">i</span>) => <span class="var">i</span>); <span class="c">// [0, 1, 2, ..., 9]</span>
+
+<span class="c">// Fill + map để tạo range</span>
+<span class="fn">Array</span>(<span class="n">3</span>).<span class="cm">fill</span>(<span class="n">0</span>).<span class="cm">map</span>((<span class="var">_</span>, <span class="var">i</span>) => <span class="var">i</span>); <span class="c">// [0, 1, 2]</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S3: filter -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2><span class="accent-filter">Array.prototype.filter()</span> — Lọc phần tử</h2>
+      </div>
+
+      <p><strong>Định nghĩa chính xác:</strong> <code>filter</code> tạo mảng mới chứa <strong>chỉ những phần tử</strong> mà callback trả về <code>truthy</code>. Mảng kết quả có độ dài <strong>bằng hoặc nhỏ hơn</strong> mảng gốc.</p>
+
+      <div class="sig-box sig-filter">
+        <div class="sig-label">Signature đầy đủ</div>
+        array.<span style="color:var(--filter-c)">filter</span>(callback(<span style="color:var(--amber)">currentValue</span>, <span style="color:var(--blue)">index</span>, <span style="color:var(--text2)">array</span>), thisArg)
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — ví dụ cơ bản</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Ví dụ cơ bản</span>
+<span class="k">const</span> <span class="var">scores</span> = [<span class="n">88</span>, <span class="n">45</span>, <span class="n">92</span>, <span class="n">60</span>, <span class="n">78</span>, <span class="n">30</span>];
+<span class="k">const</span> <span class="var">passed</span> = <span class="var">scores</span>.<span class="cm">filter</span>(<span class="var">score</span> => <span class="var">score</span> >= <span class="n">60</span>);
+<span class="c">// [88, 92, 60, 78]</span>
+
+<span class="c">// Lọc object phức tạp</span>
+<span class="k">const</span> <span class="var">products</span> = [
+  { name: <span class="s">'Laptop'</span>, price: <span class="n">1200</span>, inStock: <span class="k">true</span> },
+  { name: <span class="s">'Mouse'</span>, price: <span class="n">25</span>, inStock: <span class="k">false</span> },
+  { name: <span class="s">'Monitor'</span>, price: <span class="n">400</span>, inStock: <span class="k">true</span> },
+];
+
+<span class="k">const</span> <span class="var">affordable</span> = <span class="var">products</span>.<span class="cm">filter</span>(<span class="var">p</span> => <span class="var">p</span>.price < <span class="n">500</span> && <span class="var">p</span>.inStock);
+<span class="c">// [{ name: 'Monitor', price: 400, inStock: true }]</span></code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — patterns hay</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Pattern: Loại bỏ falsy values (null, undefined, 0, '', false)</span>
+<span class="k">const</span> <span class="var">messy</span> = [<span class="n">1</span>, <span class="k">null</span>, <span class="n">2</span>, <span class="k">undefined</span>, <span class="n">3</span>, <span class="s">''</span>, <span class="n">4</span>, <span class="k">false</span>];
+<span class="k">const</span> <span class="var">clean</span> = <span class="var">messy</span>.<span class="cm">filter</span>(Boolean); <span class="c">// [1, 2, 3, 4]</span>
+
+<span class="c">// Pattern: Loại bỏ duplicates (kết hợp với indexOf)</span>
+<span class="k">const</span> <span class="var">nums</span> = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">3</span>, <span class="n">3</span>, <span class="n">4</span>];
+<span class="k">const</span> <span class="var">unique</span> = <span class="var">nums</span>.<span class="cm">filter</span>((<span class="var">val</span>, <span class="var">idx</span>, <span class="var">arr</span>) => <span class="var">arr</span>.<span class="fn">indexOf</span>(<span class="var">val</span>) === <span class="var">idx</span>);
+<span class="c">// [1, 2, 3, 4] — chỉ giữ lần xuất hiện đầu tiên</span>
+
+<span class="c">// Lưu ý: với dữ liệu lớn dùng Set hiệu quả hơn</span>
+<span class="k">const</span> <span class="var">uniqueFast</span> = [...<span class="k">new</span> <span class="fn">Set</span>(<span class="var">nums</span>)];</code></pre>
+      </div>
+
+      <h3>TypeScript — Type Predicate với filter()</h3>
+      <p>Đây là kiến thức quan trọng khi làm việc với TypeScript. <code>filter</code> không tự động narrow type — bạn cần dùng <strong>type predicate</strong>.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">typescript</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="k">const</span> <span class="var">mixed</span>: (<span class="k">string</span> | <span class="k">null</span>)[] = [<span class="s">'a'</span>, <span class="k">null</span>, <span class="s">'b'</span>, <span class="k">null</span>, <span class="s">'c'</span>];
+
+<span class="c">// ❌ Sai: TypeScript vẫn thấy (string | null)[]</span>
+<span class="k">const</span> <span class="var">wrong</span> = <span class="var">mixed</span>.<span class="cm">filter</span>(<span class="var">x</span> => <span class="var">x</span> !== <span class="k">null</span>);
+
+<span class="c">// ✅ Đúng: dùng type predicate — "(x): x is string"</span>
+<span class="k">const</span> <span class="var">correct</span> = <span class="var">mixed</span>.<span class="cm">filter</span>((<span class="var">x</span>): <span class="var">x</span> <span class="k">is</span> <span class="k">string</span> => <span class="var">x</span> !== <span class="k">null</span>);
+<span class="c">// Type của correct là string[] ✓</span>
+
+<span class="c">// Type predicate tổng quát — reusable</span>
+<span class="k">const</span> <span class="fn">isNonNull</span> = &lt;<span class="fn">T</span>&gt;(<span class="var">value</span>: <span class="fn">T</span> | <span class="k">null</span> | <span class="k">undefined</span>): <span class="var">value</span> <span class="k">is</span> <span class="fn">T</span> => <span class="var">value</span> != <span class="k">null</span>;
+<span class="k">const</span> <span class="var">result</span> = <span class="var">mixed</span>.<span class="cm">filter</span>(<span class="var">isNonNull</span>); <span class="c">// string[]</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S4: reduce -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2><span class="accent-reduce">Array.prototype.reduce()</span> — Hàm mạnh nhất</h2>
+      </div>
+
+      <p><code>reduce</code> là "superpower" của array methods. Nó có thể <strong>triển khai lại toàn bộ</strong> <code>map</code>, <code>filter</code>, và hầu hết mọi array operation khác. Accumulator là giá trị tích lũy qua từng bước iteration.</p>
+
+      <div class="sig-box sig-reduce">
+        <div class="sig-label">Signature đầy đủ</div>
+        array.<span style="color:var(--reduce-c)">reduce</span>(callback(<span style="color:var(--amber)">accumulator</span>, <span style="color:var(--blue)">currentValue</span>, <span style="color:var(--text2)">index</span>, <span style="color:var(--text2)">array</span>), <span style="color:var(--green)">initialValue</span>)
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-content"><strong>initialValue cực kỳ quan trọng!</strong> Nếu không có <code>initialValue</code> và mảng rỗng → <code>TypeError</code> ngay lập tức. Luôn cung cấp <code>initialValue</code> là thói quen tốt.</div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — use cases thực tế</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// 1. Tính tổng / tích lũy số học</span>
+<span class="k">const</span> <span class="var">sum</span> = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => <span class="var">acc</span> + <span class="var">val</span>, <span class="n">0</span>); <span class="c">// 15</span>
+
+<span class="c">// 2. Tìm max/min (không dùng Math.max)</span>
+<span class="k">const</span> <span class="var">max</span> = [<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>, <span class="n">9</span>].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => <span class="var">val</span> > <span class="var">acc</span> ? <span class="var">val</span> : <span class="var">acc</span>);
+
+<span class="c">// 3. Group by — cực phổ biến trong thực tế</span>
+<span class="k">const</span> <span class="var">students</span> = [
+  { name: <span class="s">'An'</span>, grade: <span class="s">'A'</span> },
+  { name: <span class="s">'Bình'</span>, grade: <span class="s">'B'</span> },
+  { name: <span class="s">'Châu'</span>, grade: <span class="s">'A'</span> },
+  { name: <span class="s">'Dũng'</span>, grade: <span class="s">'B'</span> },
+  { name: <span class="s">'Em'</span>, grade: <span class="s">'C'</span> },
+];
+
+<span class="k">const</span> <span class="var">grouped</span> = <span class="var">students</span>.<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">student</span>) => {
+  <span class="k">const</span> <span class="var">key</span> = <span class="var">student</span>.grade;
+  <span class="k">if</span> (!<span class="var">acc</span>[<span class="var">key</span>]) <span class="var">acc</span>[<span class="var">key</span>] = [];
+  <span class="var">acc</span>[<span class="var">key</span>].<span class="fn">push</span>(<span class="var">student</span>);
+  <span class="k">return</span> <span class="var">acc</span>;
+}, {});
+<span class="c">// { A: [{name:'An',...}, {name:'Châu',...}], B: [...], C: [...] }</span>
+
+<span class="c">// 4. Đếm tần suất (frequency count)</span>
+<span class="k">const</span> <span class="var">words</span> = [<span class="s">'apple'</span>, <span class="s">'banana'</span>, <span class="s">'apple'</span>, <span class="s">'cherry'</span>, <span class="s">'banana'</span>, <span class="s">'apple'</span>];
+<span class="k">const</span> <span class="var">freq</span> = <span class="var">words</span>.<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">word</span>) => {
+  <span class="var">acc</span>[<span class="var">word</span>] = (<span class="var">acc</span>[<span class="var">word</span>] || <span class="n">0</span>) + <span class="n">1</span>;
+  <span class="k">return</span> <span class="var">acc</span>;
+}, {});
+<span class="c">// { apple: 3, banana: 2, cherry: 1 }</span>
+
+<span class="c">// 5. Flatten mảng lồng nhau</span>
+<span class="k">const</span> <span class="var">nested</span> = [[<span class="n">1</span>, <span class="n">2</span>], [<span class="n">3</span>, <span class="n">4</span>], [<span class="n">5</span>, <span class="n">6</span>]];
+<span class="k">const</span> <span class="var">flat</span> = <span class="var">nested</span>.<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">arr</span>) => <span class="var">acc</span>.<span class="fn">concat</span>(<span class="var">arr</span>), []);
+<span class="c">// [1, 2, 3, 4, 5, 6]</span></code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — reduce implement lại map và filter</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Implement map bằng reduce (chứng minh sức mạnh)</span>
+<span class="k">const</span> <span class="var">doubled</span> = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => {
+  <span class="var">acc</span>.<span class="fn">push</span>(<span class="var">val</span> * <span class="n">2</span>);
+  <span class="k">return</span> <span class="var">acc</span>;
+}, []);
+
+<span class="c">// Implement filter bằng reduce</span>
+<span class="k">const</span> <span class="var">evens</span> = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>, <span class="n">6</span>].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => {
+  <span class="k">if</span> (<span class="var">val</span> % <span class="n">2</span> === <span class="n">0</span>) <span class="var">acc</span>.<span class="fn">push</span>(<span class="var">val</span>);
+  <span class="k">return</span> <span class="var">acc</span>;
+}, []);
+
+<span class="c">// Pipe / compose functions — functional programming pattern</span>
+<span class="k">const</span> <span class="fn">pipe</span> = (...<span class="var">fns</span>) => (<span class="var">x</span>) => <span class="var">fns</span>.<span class="cm">reduce</span>((<span class="var">v</span>, <span class="var">fn</span>) => <span class="fn">fn</span>(<span class="var">v</span>), <span class="var">x</span>);
+
+<span class="k">const</span> <span class="var">transform</span> = <span class="fn">pipe</span>(
+  <span class="var">x</span> => <span class="var">x</span> * <span class="n">2</span>,
+  <span class="var">x</span> => <span class="var">x</span> + <span class="n">10</span>,
+  <span class="var">x</span> => <span class="s">`$${x}`</span>
+);
+<span class="fn">transform</span>(<span class="n">5</span>); <span class="c">// '$20'</span></code></pre>
+      </div>
+
+      <h3>⚠️ Cạm bẫy nguy hiểm — Bắt buộc phải biết</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — common pitfalls</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// ⚠️ NGUY HIỂM: Không có initialValue với mảng rỗng</span>
+[].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => <span class="var">acc</span> + <span class="var">val</span>);
+<span class="c">// → TypeError: Reduce of empty array with no initial value</span>
+
+<span class="c">// ✅ AN TOÀN: Luôn cung cấp initialValue</span>
+[].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => <span class="var">acc</span> + <span class="var">val</span>, <span class="n">0</span>); <span class="c">// 0 — an toàn</span>
+
+<span class="c">// ❌ LỖI THƯỜNG GẶP: Quên return accumulator</span>
+<span class="k">const</span> <span class="var">wrong</span> = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => {
+  <span class="var">acc</span>.total += <span class="var">val</span>; <span class="c">// ← Không có return!</span>
+}, { total: <span class="n">0</span> });
+<span class="c">// wrong === undefined ← sai!</span>
+
+<span class="c">// ✅ ĐÚNG: Phải return accumulator</span>
+<span class="k">const</span> <span class="var">correct</span> = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>].<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">val</span>) => {
+  <span class="var">acc</span>.total += <span class="var">val</span>;
+  <span class="k">return</span> <span class="var">acc</span>; <span class="c">// ← Bắt buộc!</span>
+}, { total: <span class="n">0</span> });</code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S5: So sánh -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>So sánh trực quan — Khi nào dùng cái nào</h2>
+      </div>
+
+      <div class="quick-ref">
+        <div class="qr-card qr-map">
+          <div class="qr-top">.map()</div>
+          <div class="qr-body">
+            <div class="qr-row"><span class="qr-key">Mục đích</span><span class="qr-val">Biến đổi phần tử</span></div>
+            <div class="qr-row"><span class="qr-key">Output size</span><span class="qr-val">Bằng input</span></div>
+            <div class="qr-row"><span class="qr-key">Callback return</span><span class="qr-val">Giá trị mới</span></div>
+            <div class="qr-row"><span class="qr-key">Ví dụ</span><span class="qr-val">price → price * 1.1</span></div>
+          </div>
+        </div>
+        <div class="qr-card qr-filter">
+          <div class="qr-top">.filter()</div>
+          <div class="qr-body">
+            <div class="qr-row"><span class="qr-key">Mục đích</span><span class="qr-val">Lọc phần tử</span></div>
+            <div class="qr-row"><span class="qr-key">Output size</span><span class="qr-val">≤ input</span></div>
+            <div class="qr-row"><span class="qr-key">Callback return</span><span class="qr-val">true / false</span></div>
+            <div class="qr-row"><span class="qr-key">Ví dụ</span><span class="qr-val">price > 100</span></div>
+          </div>
+        </div>
+        <div class="qr-card qr-reduce">
+          <div class="qr-top">.reduce()</div>
+          <div class="qr-body">
+            <div class="qr-row"><span class="qr-key">Mục đích</span><span class="qr-val">Tích lũy → 1 giá trị</span></div>
+            <div class="qr-row"><span class="qr-key">Output size</span><span class="qr-val">Bất kỳ</span></div>
+            <div class="qr-row"><span class="qr-key">Callback return</span><span class="qr-val">Accumulator mới</span></div>
+            <div class="qr-row"><span class="qr-key">Ví dụ</span><span class="qr-val">sum, group, flatten</span></div>
+          </div>
+        </div>
+      </div>
+
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th>Tiêu chí</th>
+            <th class="th-map">map()</th>
+            <th class="th-filter">filter()</th>
+            <th class="th-reduce">reduce()</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Trả về</td>
+            <td>Mảng mới (cùng length)</td>
+            <td>Mảng mới (subset)</td>
+            <td>Bất kỳ kiểu dữ liệu</td>
+          </tr>
+          <tr>
+            <td>Mảng gốc</td>
+            <td>Không thay đổi</td>
+            <td>Không thay đổi</td>
+            <td>Không thay đổi</td>
+          </tr>
+          <tr>
+            <td>Complexity</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+          </tr>
+          <tr>
+            <td>initialValue</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Optional nhưng nên có</td>
+          </tr>
+          <tr>
+            <td>Dùng khi</td>
+            <td>Transform từng item</td>
+            <td>Cần subset của mảng</td>
+            <td>Cần 1 kết quả tổng hợp</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S6: Method Chaining -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Method Chaining — Sức mạnh thực sự</h2>
+      </div>
+
+      <p>Vì mỗi method trả về mảng mới, bạn có thể chain liên tiếp, tạo ra một <strong>pipeline xử lý dữ liệu</strong> cực kỳ dễ đọc và maintain. Đây là cách code thực tế trong production.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — chaining pipeline</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="k">const</span> <span class="var">orders</span> = [
+  { id: <span class="n">1</span>, customer: <span class="s">'An'</span>, amount: <span class="n">150</span>, status: <span class="s">'completed'</span>, category: <span class="s">'electronics'</span> },
+  { id: <span class="n">2</span>, customer: <span class="s">'Bình'</span>, amount: <span class="n">50</span>, status: <span class="s">'pending'</span>, category: <span class="s">'books'</span> },
+  { id: <span class="n">3</span>, customer: <span class="s">'Châu'</span>, amount: <span class="n">320</span>, status: <span class="s">'completed'</span>, category: <span class="s">'electronics'</span> },
+  { id: <span class="n">4</span>, customer: <span class="s">'Dũng'</span>, amount: <span class="n">80</span>, status: <span class="s">'cancelled'</span>, category: <span class="s">'books'</span> },
+  { id: <span class="n">5</span>, customer: <span class="s">'Em'</span>, amount: <span class="n">200</span>, status: <span class="s">'completed'</span>, category: <span class="s">'electronics'</span> },
+];
+
+<span class="c">// Tổng doanh thu từ đơn electronics đã completed</span>
+<span class="k">const</span> <span class="var">revenue</span> = <span class="var">orders</span>
+  .<span class="cm">filter</span>(<span class="var">order</span> => <span class="var">order</span>.status === <span class="s">'completed'</span>)    <span class="c">// [1, 3, 5]</span>
+  .<span class="cm">filter</span>(<span class="var">order</span> => <span class="var">order</span>.category === <span class="s">'electronics'</span>) <span class="c">// [1, 3, 5]</span>
+  .<span class="cm">map</span>(<span class="var">order</span> => <span class="var">order</span>.amount)                        <span class="c">// [150, 320, 200]</span>
+  .<span class="cm">reduce</span>((<span class="var">sum</span>, <span class="var">amount</span>) => <span class="var">sum</span> + <span class="var">amount</span>, <span class="n">0</span>);        <span class="c">// 670</span>
+
+<span class="c">// Danh sách tên khách hàng unique đã hoàn thành đơn</span>
+<span class="k">const</span> <span class="var">completedCustomers</span> = <span class="var">orders</span>
+  .<span class="cm">filter</span>(<span class="var">o</span> => <span class="var">o</span>.status === <span class="s">'completed'</span>)
+  .<span class="cm">map</span>(<span class="var">o</span> => <span class="var">o</span>.customer)
+  .<span class="cm">filter</span>((<span class="var">name</span>, <span class="var">idx</span>, <span class="var">arr</span>) => <span class="var">arr</span>.<span class="fn">indexOf</span>(<span class="var">name</span>) === <span class="var">idx</span>);</code></pre>
+      </div>
+
+      <h3>Performance — Khi nào KHÔNG nên chain</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — performance optimization</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// ⚠️ Chaining duyệt mảng 3 lần</span>
+<span class="k">const</span> <span class="var">result</span> = <span class="var">bigArray</span>
+  .<span class="cm">filter</span>(<span class="var">x</span> => <span class="var">x</span> > <span class="n">0</span>)    <span class="c">// pass 1: O(n)</span>
+  .<span class="cm">map</span>(<span class="var">x</span> => <span class="var">x</span> * <span class="n">2</span>)       <span class="c">// pass 2: O(n)</span>
+  .<span class="cm">reduce</span>((<span class="var">a</span>, <span class="var">b</span>) => <span class="var">a</span> + <span class="var">b</span>, <span class="n">0</span>); <span class="c">// pass 3: O(n)</span>
+
+<span class="c">// ✅ Tối ưu: dùng reduce một lần — O(n) duy nhất</span>
+<span class="k">const</span> <span class="var">result</span> = <span class="var">bigArray</span>.<span class="cm">reduce</span>((<span class="var">acc</span>, <span class="var">x</span>) => {
+  <span class="k">if</span> (<span class="var">x</span> > <span class="n">0</span>) <span class="var">acc</span> += <span class="var">x</span> * <span class="n">2</span>;
+  <span class="k">return</span> <span class="var">acc</span>;
+}, <span class="n">0</span>);
+
+<span class="c">// Ghi nhớ: với dữ liệu nhỏ-vừa (&lt;100k phần tử),</span>
+<span class="c">// chaining vẫn ổn — ưu tiên readability hơn.</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S7: Patterns nâng cao -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2>Patterns nâng cao quan trọng</h2>
+      </div>
+
+      <h3>Pattern 1: flatMap() — ES2019</h3>
+      <p><code>flatMap</code> là sự kết hợp của <code>map</code> + <code>flat(1)</code> trong một bước. Rất hữu ích khi một phần tử cần được "expand" thành nhiều phần tử.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — flatMap</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// map thông thường tạo mảng lồng nhau</span>
+<span class="k">const</span> <span class="var">sentences</span> = [<span class="s">'hello world'</span>, <span class="s">'foo bar'</span>];
+<span class="var">sentences</span>.<span class="cm">map</span>(<span class="var">s</span> => <span class="var">s</span>.<span class="fn">split</span>(<span class="s">' '</span>)); <span class="c">// [['hello', 'world'], ['foo', 'bar']]</span>
+
+<span class="c">// flatMap tự động flatten 1 cấp</span>
+<span class="var">sentences</span>.<span class="cm">flatMap</span>(<span class="var">s</span> => <span class="var">s</span>.<span class="fn">split</span>(<span class="s">' '</span>)); <span class="c">// ['hello', 'world', 'foo', 'bar']</span>
+
+<span class="c">// Thực tế: expand một item thành nhiều items</span>
+<span class="k">const</span> <span class="var">cart</span> = [
+  { product: <span class="s">'T-shirt'</span>, qty: <span class="n">2</span> },
+  { product: <span class="s">'Shoes'</span>, qty: <span class="n">1</span> },
+];
+<span class="k">const</span> <span class="var">items</span> = <span class="var">cart</span>.<span class="cm">flatMap</span>(<span class="var">item</span> =>
+  <span class="fn">Array</span>(<span class="var">item</span>.qty).<span class="fn">fill</span>(<span class="var">item</span>.product)
+);
+<span class="c">// ['T-shirt', 'T-shirt', 'Shoes']</span></code></pre>
+      </div>
+
+      <h3>Pattern 2: Xử lý bất đồng bộ (async/await)</h3>
+      <p>Đây là lỗi cực kỳ phổ biến của developer khi dùng <code>map</code> với async. Cần đặc biệt chú ý!</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — async với map</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// ❌ SAI: map với async không chờ Promise!</span>
+<span class="k">const</span> <span class="var">results</span> = <span class="k">await</span> <span class="var">arr</span>.<span class="cm">map</span>(<span class="k">async</span> <span class="var">item</span> => <span class="k">await</span> <span class="fn">fetch</span>(<span class="var">item</span>.url));
+<span class="c">// results là mảng Promise[], không phải kết quả!</span>
+
+<span class="c">// ✅ ĐÚNG: Parallel — dùng Promise.all + map</span>
+<span class="k">const</span> <span class="var">results</span> = <span class="k">await</span> Promise.<span class="fn">all</span>(
+  <span class="var">arr</span>.<span class="cm">map</span>(<span class="k">async</span> <span class="var">item</span> => {
+    <span class="k">const</span> <span class="var">res</span> = <span class="k">await</span> <span class="fn">fetch</span>(<span class="var">item</span>.url);
+    <span class="k">return</span> <span class="var">res</span>.<span class="fn">json</span>();
+  })
+);
+
+<span class="c">// ✅ Sequential (tuần tự) — dùng reduce với async</span>
+<span class="k">const</span> <span class="var">results</span> = <span class="k">await</span> <span class="var">arr</span>.<span class="cm">reduce</span>(<span class="k">async</span> (<span class="var">prevPromise</span>, <span class="var">item</span>) => {
+  <span class="k">const</span> <span class="var">acc</span> = <span class="k">await</span> <span class="var">prevPromise</span>;
+  <span class="k">const</span> <span class="var">result</span> = <span class="k">await</span> <span class="fn">fetch</span>(<span class="var">item</span>.url).<span class="fn">then</span>(<span class="var">r</span> => <span class="var">r</span>.<span class="fn">json</span>());
+  <span class="k">return</span> [...<span class="var">acc</span>, <span class="var">result</span>];
+}, Promise.<span class="fn">resolve</span>([]));
+<span class="c">// Mỗi request chờ request trước hoàn thành</span></code></pre>
+      </div>
+
+      <h3>Pattern 3: Object.entries() + reduce()</h3>
+      <p>Combo này cực kỳ hay khi làm việc với objects — transform keys, filter properties, hay parse types.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — object transformation</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="k">const</span> <span class="var">config</span> = { host: <span class="s">'localhost'</span>, port: <span class="s">'3000'</span>, debug: <span class="s">'true'</span> };
+
+<span class="c">// Chuyển string → đúng type (auto-parse)</span>
+<span class="k">const</span> <span class="var">parsed</span> = Object.<span class="fn">entries</span>(<span class="var">config</span>).<span class="cm">reduce</span>((<span class="var">acc</span>, [<span class="var">key</span>, <span class="var">val</span>]) => {
+  <span class="k">const</span> <span class="var">num</span> = <span class="fn">Number</span>(<span class="var">val</span>);
+  <span class="var">acc</span>[<span class="var">key</span>] = !<span class="fn">isNaN</span>(<span class="var">num</span>) ? <span class="var">num</span>        <span class="c">// số</span>
+           : <span class="var">val</span> === <span class="s">'true'</span> ? <span class="k">true</span>    <span class="c">// boolean true</span>
+           : <span class="var">val</span> === <span class="s">'false'</span> ? <span class="k">false</span>  <span class="c">// boolean false</span>
+           : <span class="var">val</span>;                     <span class="c">// giữ nguyên string</span>
+  <span class="k">return</span> <span class="var">acc</span>;
+}, {});
+<span class="c">// { host: 'localhost', port: 3000, debug: true }</span>
+
+<span class="c">// Lọc keys của object (chỉ giữ public keys)</span>
+<span class="k">const</span> <span class="var">publicConfig</span> = Object.<span class="fn">entries</span>(<span class="var">config</span>)
+  .<span class="cm">filter</span>(([<span class="var">key</span>]) => !<span class="var">key</span>.<span class="fn">startsWith</span>(<span class="s">'_'</span>))
+  .<span class="cm">reduce</span>((<span class="var">acc</span>, [<span class="var">key</span>, <span class="var">val</span>]) => ({ ...<span class="var">acc</span>, [<span class="var">key</span>]: <span class="var">val</span> }), {});</code></pre>
+      </div>
+
+      <h3>Pattern 4: reduceRight() — Compose functions</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — compose vs pipe</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// pipe: thực hiện từ trái sang phải (dùng reduce)</span>
+<span class="k">const</span> <span class="fn">pipe</span> = (...<span class="var">fns</span>) => (<span class="var">x</span>) => <span class="var">fns</span>.<span class="cm">reduce</span>((<span class="var">v</span>, <span class="var">fn</span>) => <span class="fn">fn</span>(<span class="var">v</span>), <span class="var">x</span>);
+
+<span class="c">// compose: thực hiện từ phải sang trái (dùng reduceRight)</span>
+<span class="k">const</span> <span class="fn">compose</span> = (...<span class="var">fns</span>) => (<span class="var">x</span>) => <span class="var">fns</span>.<span class="cm">reduceRight</span>((<span class="var">v</span>, <span class="var">fn</span>) => <span class="fn">fn</span>(<span class="var">v</span>), <span class="var">x</span>);
+
+<span class="k">const</span> <span class="var">process</span> = <span class="fn">compose</span>(
+  <span class="var">x</span> => <span class="s">`Result: ${x}`</span>,  <span class="c">// bước 3</span>
+  <span class="var">x</span> => <span class="var">x</span> * <span class="n">2</span>,            <span class="c">// bước 2</span>
+  <span class="var">x</span> => <span class="var">x</span> + <span class="n">5</span>             <span class="c">// bước 1</span>
+);
+<span class="fn">process</span>(<span class="n">3</span>); <span class="c">// 'Result: 16' — 3+5=8 → 8×2=16 → 'Result: 16'</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S8: Kiến thức liên quan -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2>Kiến thức liên quan quan trọng</h2>
+      </div>
+
+      <h3>Array.from() — Tạo mảng từ iterable</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — Array.from</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Tạo range [0..9] — pattern rất hay</span>
+Array.<span class="fn">from</span>({ length: <span class="n">10</span> }, (<span class="var">_</span>, <span class="var">i</span>) => <span class="var">i</span>); <span class="c">// [0, 1, 2, ..., 9]</span>
+
+<span class="c">// Tạo range với giá trị cụ thể</span>
+Array.<span class="fn">from</span>({ length: <span class="n">5</span> }, (<span class="var">_</span>, <span class="var">i</span>) => <span class="var">i</span> * <span class="n">2</span>); <span class="c">// [0, 2, 4, 6, 8]</span>
+
+<span class="c">// Convert NodeList (DOM) sang array để dùng map/filter</span>
+<span class="k">const</span> <span class="var">links</span> = Array.<span class="fn">from</span>(document.<span class="fn">querySelectorAll</span>(<span class="s">'a'</span>))
+  .<span class="cm">map</span>(<span class="var">a</span> => <span class="var">a</span>.href)
+  .<span class="cm">filter</span>(<span class="var">href</span> => <span class="var">href</span>.<span class="fn">startsWith</span>(<span class="s">'https'</span>));
+
+<span class="c">// Spread cũng work cho iterables</span>
+<span class="k">const</span> <span class="var">chars</span> = [...<span class="s">'hello'</span>].<span class="cm">map</span>(<span class="var">c</span> => <span class="var">c</span>.<span class="fn">toUpperCase</span>()).<span class="fn">join</span>(<span class="s">''</span>); <span class="c">// 'HELLO'</span></code></pre>
+      </div>
+
+      <h3>Immutable State trong React — Pattern thực tế</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — React/Redux immutable patterns</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Pattern UPDATE: cập nhật item không mutation</span>
+<span class="k">const</span> <span class="fn">updateUser</span> = (<span class="var">users</span>, <span class="var">id</span>, <span class="var">newData</span>) =>
+  <span class="var">users</span>.<span class="cm">map</span>(<span class="var">user</span> => <span class="var">user</span>.id === <span class="var">id</span> ? { ...<span class="var">user</span>, ...<span class="var">newData</span> } : <span class="var">user</span>);
+
+<span class="c">// Pattern DELETE: xóa item</span>
+<span class="k">const</span> <span class="fn">removeUser</span> = (<span class="var">users</span>, <span class="var">id</span>) =>
+  <span class="var">users</span>.<span class="cm">filter</span>(<span class="var">user</span> => <span class="var">user</span>.id !== <span class="var">id</span>);
+
+<span class="c">// Pattern ADD: thêm item</span>
+<span class="k">const</span> <span class="fn">addUser</span> = (<span class="var">users</span>, <span class="var">newUser</span>) => [...<span class="var">users</span>, <span class="var">newUser</span>];
+
+<span class="c">// React useState example — đúng cách</span>
+<span class="k">const</span> [<span class="var">todos</span>, <span class="fn">setTodos</span>] = <span class="fn">useState</span>([...]);
+
+<span class="c">// Toggle done</span>
+<span class="k">const</span> <span class="fn">toggleTodo</span> = (<span class="var">id</span>) =>
+  <span class="fn">setTodos</span>(<span class="var">prev</span> => <span class="var">prev</span>.<span class="cm">map</span>(<span class="var">t</span> => <span class="var">t</span>.id === <span class="var">id</span> ? { ...<span class="var">t</span>, done: !<span class="var">t</span>.done } : <span class="var">t</span>));
+
+<span class="c">// Delete todo</span>
+<span class="k">const</span> <span class="fn">deleteTodo</span> = (<span class="var">id</span>) =>
+  <span class="fn">setTodos</span>(<span class="var">prev</span> => <span class="var">prev</span>.<span class="cm">filter</span>(<span class="var">t</span> => <span class="var">t</span>.id !== <span class="var">id</span>));</code></pre>
+      </div>
+
+      <h3>So sánh với forEach — Khi nào KHÔNG dùng map</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — map vs forEach</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// forEach: khi cần side effects, không cần return value</span>
+<span class="var">orders</span>.<span class="cm">forEach</span>(<span class="var">order</span> => {
+  console.<span class="fn">log</span>(<span class="var">order</span>.id);     <span class="c">// side effect: log</span>
+  <span class="fn">sendEmail</span>(<span class="var">order</span>.customer); <span class="c">// side effect: API call</span>
+});
+
+<span class="c">// ❌ SAI: dùng map chỉ cho side effects — lãng phí</span>
+<span class="var">orders</span>.<span class="cm">map</span>(<span class="var">order</span> => console.<span class="fn">log</span>(<span class="var">order</span>.id));
+<span class="c">// Tạo mảng [undefined, undefined, ...] không ai dùng</span>
+
+<span class="c">// ✅ ĐÚNG: map khi thực sự cần mảng mới</span>
+<span class="k">const</span> <span class="var">ids</span> = <span class="var">orders</span>.<span class="cm">map</span>(<span class="var">order</span> => <span class="var">order</span>.id);
+
+<span class="c">// Sự khác biệt quan trọng:</span>
+<span class="c">// forEach → trả về undefined, không chain được</span>
+<span class="c">// map/filter/reduce → trả về giá trị, chain được</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- S9: Summary -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2>Tóm tắt &amp; Bảng quyết định</h2>
+      </div>
+
+      <p>Câu hỏi cần tự hỏi khi xử lý mảng:</p>
+
+      <table class="decision-table">
+        <thead>
+          <tr>
+            <th>Câu hỏi bạn tự hỏi</th>
+            <th>Method dùng</th>
+            <th>Ví dụ nhanh</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Muốn biến đổi từng phần tử, giữ số lượng?</td>
+            <td><span class="accent-map">.map()</span></td>
+            <td>prices → prices with tax</td>
+          </tr>
+          <tr>
+            <td>Chỉ lấy những phần tử thỏa điều kiện?</td>
+            <td><span class="accent-filter">.filter()</span></td>
+            <td>users → active users only</td>
+          </tr>
+          <tr>
+            <td>Gộp tất cả thành một giá trị hoặc object?</td>
+            <td><span class="accent-reduce">.reduce()</span></td>
+            <td>items → total, group by, freq</td>
+          </tr>
+          <tr>
+            <td>Biến đổi VÀ làm phẳng mảng lồng?</td>
+            <td><em>.flatMap()</em></td>
+            <td>sentences → words</td>
+          </tr>
+          <tr>
+            <td>Chỉ cần side effects, không cần kết quả?</td>
+            <td><em>.forEach()</em></td>
+            <td>log, API calls, DOM updates</td>
+          </tr>
+          <tr>
+            <td>Kiểm tra TẤT CẢ phần tử thỏa điều kiện?</td>
+            <td><em>.every()</em></td>
+            <td>all scores >= 50?</td>
+          </tr>
+          <tr>
+            <td>Kiểm tra ÍT NHẤT MỘT phần tử thỏa điều kiện?</td>
+            <td><em>.some()</em></td>
+            <td>any score < 50?</td>
+          </tr>
+          <tr>
+            <td>Tìm phần tử đầu tiên thỏa điều kiện?</td>
+            <td><em>.find()</em></td>
+            <td>first user with role=admin</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Mental Model — Hình dung dữ liệu chảy qua pipeline</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">javascript — mental model</span>
+          <button class="copy-btn" onclick="copyCode(this)">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code><span class="c">// Hình dung: data pipeline như assembly line</span>
+<span class="k">const</span> <span class="var">result</span> = rawData
+  .<span class="cm">filter</span>(<span class="var">isValid</span>)          <span class="c">// 🚧 QC gate: loại hàng lỗi</span>
+  .<span class="cm">map</span>(<span class="var">normalize</span>)           <span class="c">// 🔧 Transform: chuẩn hóa format</span>
+  .<span class="cm">filter</span>(<span class="var">meetsRequirement</span>) <span class="c">// 🚧 QC gate 2: kiểm tra yêu cầu</span>
+  .<span class="cm">map</span>(<span class="var">enrich</span>)              <span class="c">// 🔧 Transform: bổ sung thêm data</span>
+  .<span class="cm">reduce</span>(<span class="var">aggregate</span>, {});   <span class="c">// 📦 Pack: đóng gói kết quả</span>
+
+<span class="c">// 3 phương thức này là backbone của data transformation</span>
+<span class="c">// trong JavaScript hiện đại — React, Node.js, hay bất kỳ</span>
+<span class="c">// framework nào đều dùng chúng hàng ngày.</span></code></pre>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">✅</div>
+        <div class="callout-content">
+          <strong>Key takeaways để nhớ mãi:</strong><br>
+          • <code>map</code> — "tôi muốn mảng khác với cùng số phần tử"<br>
+          • <code>filter</code> — "tôi muốn subset của mảng này"<br>
+          • <code>reduce</code> — "tôi muốn chưng cất mảng này thành một thứ"<br>
+          • Luôn cung cấp <code>initialValue</code> cho <code>reduce</code><br>
+          • Không dùng <code>map</code> chỉ cho side effects — đó là việc của <code>forEach</code><br>
+          • <code>map</code>/<code>filter</code>/<code>reduce</code> không mutation mảng gốc — đây là immutability
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 48px;"></div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- Scroll to top -->
+<div id="scrolltop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+// Copy button
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" style="width:12px;height:12px"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg> Copied!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" style="width:12px;height:12px"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h-1v1H2V6h1V5H2z"/></svg> Copy`;
+    }, 2000);
+  });
+}
+
+// Active nav on scroll
+const sections = document.querySelectorAll('.section');
+const navItems = document.querySelectorAll('.nav-item');
+const scrollTopBtn = document.getElementById('scrolltop');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('href') === `#${id}`);
+      });
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-80px 0px -60% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// Scroll to top button
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+});
+
+// Close sidebar on mobile nav click
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
