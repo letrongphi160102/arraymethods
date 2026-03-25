@@ -1389,35 +1389,42 @@ function copyCode(btn) {
   });
 }
 
-// Active nav on scroll
+// Active nav highlight
 const sections = document.querySelectorAll('.section');
 const navItems = document.querySelectorAll('.nav-item');
 const scrollTopBtn = document.getElementById('scrolltop');
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const id = entry.target.id;
-      navItems.forEach(item => {
-        item.classList.toggle('active', item.getAttribute('href') === `#${id}`);
-      });
-    }
+function setActive(id) {
+  navItems.forEach(item => {
+    item.classList.toggle('active', item.getAttribute('href') === '#' + id);
   });
-}, { threshold: 0.3, rootMargin: '-80px 0px -60% 0px' });
+}
 
-sections.forEach(s => observer.observe(s));
+function updateActiveOnScroll() {
+  const scrollY = window.scrollY + 160;
+  let current = sections[0].id;
+  sections.forEach(section => {
+    if (scrollY >= section.offsetTop) current = section.id;
+  });
+  setActive(current);
+}
+
+window.addEventListener('scroll', updateActiveOnScroll, { passive: true });
+updateActiveOnScroll();
+
+// Click: set active immediately
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const id = item.getAttribute('href').slice(1);
+    setActive(id);
+    document.getElementById('sidebar').classList.remove('open');
+  });
+});
 
 // Scroll to top button
 window.addEventListener('scroll', () => {
   scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
-});
-
-// Close sidebar on mobile nav click
-navItems.forEach(item => {
-  item.addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('open');
-  });
-});
+}, { passive: true });
 </script>
 </body>
 </html>
